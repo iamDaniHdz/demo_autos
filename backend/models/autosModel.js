@@ -1,6 +1,11 @@
 const mongoose = require('mongoose')
 
 const autoSchema = mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
     marca: {
         type: String,
         required: [true, 'Por favor teclea un valor']

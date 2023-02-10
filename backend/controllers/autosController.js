@@ -3,7 +3,7 @@ const asyncHandler = require('express-async-handler')
 const Auto = require('../models/autosModel')
 
 const getAutos = asyncHandler(async (req, res) => {
-    const autos = await Auto.find()
+    const autos = await Auto.find({ user: req.user.id })
 
     res.status(200).json(autos)
 })
@@ -30,6 +30,7 @@ const setAutos = asyncHandler(async (req, res) => {
     }
 
     const auto = await Auto.create({
+        user: req.user.id,
         marca: req.body.marca,
         modelo: req.body.modelo,
         año: req.body.año,
@@ -47,10 +48,16 @@ const updateAuto = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Auto no encontrada')
     }
+    
+    //verificamos que el user de la tarea sea igual al user del token
+    if (auto.user.toString() !== req.user.id) {
+        res.status(401)
+        throw new Error('Acceso no Autorizado')
+    }
 
     const updatedAuto = await Auto.findByIdAndUpdate(req.params.id, req.body, {new: true})
 
-    res.status(200).json({ message: `Auto ${req.params.id} actualizado`})
+    res.status(200).json(updatedAuto)
 })
 
 const deleteAuto = asyncHandler(async (req, res) => {
@@ -60,6 +67,12 @@ const deleteAuto = asyncHandler(async (req, res) => {
     if (!auto) {
         res.status(400)
         throw new Error('Auto no encontrado')
+    }
+
+    //verificamos que el user de la tarea sea igual al user del token
+    if (auto.user.toString() !== req.user.id) {
+        res.status(401)
+        throw new Error('Acceso no Autorizado')
     }
 
     await auto.remove()

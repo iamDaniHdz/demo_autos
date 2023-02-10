@@ -2,7 +2,9 @@ const express = require('express')
 const router = express.Router()
 const { getAutos, setAutos, updateAuto, deleteAuto } = require('../controllers/autosController')
 
-router.route('/').get(getAutos).post(setAutos)
-router.route('/:id').delete(deleteAuto).put(updateAuto)
+const { protect } = require('../middleware/authMiddleware')
+
+router.route('/').get(protect, getAutos).post(protect, setAutos)
+router.route('/:id').delete(protect, deleteAuto).put(protect, updateAuto)
 
 module.exports = router
